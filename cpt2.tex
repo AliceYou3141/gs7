@@ -187,17 +187,17 @@ miscが座標軸の上でとりうる値であると考えます。そうすれ�
 自己結合で、内部結合は外部結合の部分空間と考えることができます。
 これは、外部結合が組み合わせのすべての可能性を網羅するのに対して、内部結合が、結合時に条件を与えて、結合結果のレコードを選択しているからです。
 
-内部結合が外部結合の部分空間であるという例として、先ほどのスコアから順位を出すSELECT文を、外部結合を使った場合に書き換えてみます。
+内部結合が外部結合の部分空間であるという例として、クエリ\ref{sql:rank}のスコアから順位を出すSELECT文を、外部結合を使った場合に書き換えてみます。
 
-\begin{verbatim}
+\begin{lstlisting}[caption=外部結合で書く,label=sql:outerrank]
 SELECT t1.id , t1.score , count(*) AS rank
   FROM users AS t1 , users AS t2
   WHERE t1.score <= t2.score
   GROUP BY t1.id
 ;
-\end{verbatim}
+\end{lstlisting}
 
-内部結合のときにON句で書いた結合条件が、WHEREでレコードを選択する条件となります。それで選択されたレコードすべてが、グルーピングの対象となります。
+クエリ\ref{sql:outerrank}は、内部結合を用いたクエリ\ref{sql:rank}で、ON句で書いた結合条件は、WHEREでレコードを選択する条件となります。それで選択されたレコードすべてが、グルーピングの対象となります。
 
 その結果、内部結合を使用した場合と、おなじ結果の出力が得られます。ですが、入力側の集合が異なることと、WHERE句の有無の違いと、一見すると、命題が異なっています。
 
@@ -210,7 +210,7 @@ SELECTは関数です。テーブルを入力として、テーブルを出力�
 これは、すべての可能性という空間から、解答が存在する空間へのマッピングとして定義できる問題であれば、SELECT文で解くことができるということです。
 本書では、その例として、三平方の定理と、4-Queenを1文のSELECTで解く方法について説明します
 
-\subsection{SELECTで問題とを解くことの問題}
+\subsection{SELECTでの問題解決の問題}
 
 本書では、自己結合を利用する例として取り上げていますが、SQLで三平方の定理や４-Queenといった問題を解くのは、あまりよい方法とはいえません。以降で紹介するのは、いささか技芸に走ったものでもあります。
 
@@ -232,38 +232,40 @@ SELECTは関数です。テーブルを入力として、テーブルを出力�
 数学的には、実数集合から、解に該当するリストの集合へのマッピング、となります。
 
 ただし、SELECTで解く場合、元の空間もテーブルとして書ける、有限のものである必要があります。
-ここでは、フィールドlengthに1から10までの整数がはいったテーブル、numsを、以下のように定義します。
+ここでは、フィールドlengthに1から10までの整数がはいったテーブル、numsを、クエリ\ref{sql:int}のように定義します。
 
-\begin{verbatim}
+\begin{lstlisting}[caption=整数テーブル,label=sql:int]
 CREATE TABLE nums (length int);
 INSERT INTO nums VALUES
-   (1),(2),.....,(9),(10);
-\end{verbatim}
+   (1),(2),..(中略)..,(9),(10);
+\end{lstlisting}
 
 このテーブル、numsに格納された整数の中で、三平方の定理が成立する組み合わせを探す、というように、問題を限定します。
 
-\begin{verbatim}
+\begin{lstlisting}[caption=三平方の定理の解,label=sql:square]
 SELECT DISTINCT t1.length,t2.length,t3.lengh 
   FROM nums AS t1, nums AS t2, nums AS t3
-  WHERE pow(t1.length,2) = pow(t2.length,2) + pow(t3.length^2m,2) 
+  WHERE pow(t1.length,2) = 
+    pow(t2.length,2) + pow(t3.length,2) 
 ;
-\end{verbatim}
+\end{lstlisting}
 
-このSELECTを実行すると、numsに別名を付けてつくったテーブルt1とt2とt3の直積から、三平方の定理を満たすt1.lengthとt2.lengthとt3.lengthの組み合わせをフィールドにもつテーブルが、解として出力されます。
+クエリ\ref{sql:square}を実行すると、numsに別名を付けてつくったテーブルt1とt2とt3の直積から、三平方の定理を満たすt1.lengthとt2.lengthとt3.lengthの組み合わせをフィールドにもつテーブルが、解として出力されます。
 
-このクエリを実行した結果は、以下のように得られます。10以下の整数で三平方の定理が成立する組み合わせのすべてが得られていることがわかります。
+クエリ\ref{sql:square}を実行した結果は、表\ref{table:square}のように得られます。10以下の整数で三平方の定理が成立する組み合わせのすべてが得られていることがわかります。
 
-\begin{verbatim}
-+--------+--------+--------+
-| length | length | length |
-+--------+--------+--------+
-|      5 |      4 |      3 |
-|      5 |      3 |      4 |
-|     10 |      8 |      6 |
-|     10 |      6 |      8 |
-+--------+--------+--------+
-4 rows in set (0.00 sec)
-\end{verbatim}
+\begin{table}[htbp]
+  \begin{tabular}{|r|r|r|} \hline
+    length & length & length \\ \hline \hline  
+    5 & 4 & 3 \\
+    5 & 3 & 4 \\
+    10 & 8 & 6 \\
+    10 & 6 & 8 \\ \hline
+  \end{tabular}
+  \caption{三平方の定理の解}
+  \label{table:square}
+\end{table}
+
 
 ただし、このWHERE以降の条件は三平方の定理のみに注目したものです。長辺を底辺にした場合の、軸対称の三角形の解のペアは排除されません。
 
@@ -281,23 +283,23 @@ n-Queenは、nが4より大きいときに解ができます。再帰の利用�
 
 まず、4-Queenの問題を、SELECTで扱えるようにしましょう。n-Queenの解は、かならず縦の1列に、ひとつだけ入ります。これは、同じ縦の列に、二つ以上のクイーンが入ることはない、という性質からです。
 
-この性質を利用して、縦の1列列を現すテーブルcolを、以下のように定義します。
+この性質を利用して、縦の1列列を現すテーブルcolを、クエリ\ref{sql:col}のように定義します。
 
-\begin{verbatim}
+\begin{lstlisting}[caption=縦の列を定義するテーブル,label=sql:col]
 CRETE TABLE col (pos int);
 INSERT INTO col VALUES
    (1),(2),(3),(4);
-\end{verbatim}
+\end{lstlisting}
 
 ある縦の列でQueenをどこに置くかは、colテーブルからどのレコードを選択したかで現します。
 
-4-Queenの盤面は、colテーブル4個の直積として現されます。このとき、4-Queenの解は、4の4乗で256のレコードを持つ、直積集合から、4-Queenの解に合致するものを選択する、という問題にすることができます。
+4-Queenの盤面は、colテーブル4個の外部結合として現されます。このとき、4-Queenの解は、4の4乗で256のレコードを持つ、直積集合、つまり外部結合で作られたテーブルから、4-Queenの解に合致するものを選択する、という問題にすることができます。
 
 \subsubsection{問題を解く}
 
 4-Queenを解くめには、ある縦の列のQueenに注目したとき、横や斜めの位置にくるQueenがない、という条件が全ての列に対して成立するレコードを、直積から選択するクエリを書けばよいということになります。
 
-\begin{verbatim}
+\begin{lstlisting}[caption=4-Queenを解く,label=sql:4queen]
 SELECT t1.pos,t2.pos,t3.pos,t4.pos
   FROM col AS t1,col AS t2,col AS t3,col AS t4
   WHERE 
@@ -317,23 +319,24 @@ SELECT t1.pos,t2.pos,t3.pos,t4.pos
   AND t4.pos+3 != t1.pos AND t4.pos+2 != t4.pos
   AND t4.pos+1 != t3.pos
 ;
-\end{verbatim}
+\end{lstlisting}
 
-このSELECT文は、鏡面対称の解は排除しません。また、縦方向はかならずひとつしかクイーンが入らない、という、向きの制限をしたモデリングを行っているので、回転対称の解は得られません。
+クエリ\ref{sql:4queen}は、鏡面対称の解は排除しません。また、縦方向はかならずひとつしかクイーンが入らない、という、向きの制限をしたモデリングを行っているので、回転対称の解は得られません。
 
-このSELECTで、クイーンの場所が以下のように得られます。
+クエリ\ref{sql:4queen}で、クイーンの配置は、表\ref{table:4queen}のように得られます。
 
-\begin{verbatim}
-+-----+-----+-----+-----+
-| pos | pos | pos | pos |
-+-----+-----+-----+-----+
-|   3 |   1 |   4 |   2 | 
-|   2 |   4 |   1 |   3 |
-+-----+-----+-----+-----+
-2 rows in set (0.00 sec)
-\end{verbatim}
 
-この結果をもとに盤面にクイーンを配置すると、たしかに4-Queen問題がSELECT文で解けたことがわかります。
+\begin{table}[htbp]
+  \begin{tabular}{|r|r|r|r|} \hline
+    pos & pos & pos & pos \\ \hline \hline  
+    3 & 1 & 4 & 2 \\
+    2 & 4 & 1 & 3 \\ \hline
+  \end{tabular}
+  \caption{4-Queenの解}
+  \label{table:4queen}
+\end{table}
+
+表\ref{table:4queen}の結果の通りに盤面にクイーンを配置すると、たしかに4-Queen問題がSELECT文で解けたことがわかります。
 
 
 
