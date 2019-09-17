@@ -122,11 +122,10 @@ SELECT t1.id , t1.score , count(*) AS rank
 \section{自己結合の外部結合}
 同じ構造とレコードを持つテーブル同士を外部結合した場合、それによって得られる集合は、二つの集合を掛け合わせた直積集合です。
 
-自己結合の対象となるテーブルの例として、表\ref{table:misc}のような、レコードが三つのテーブルを考えましょう。
-
+自己結合の対象となるテーブルの例として、表\ref{table:misc}のような、レコードが三つのテーブルを考えます。
 
 \begin{table}[htbp]
-  \begin{tabular}{|r}} \hline
+  \begin{tabular}{|r|} \hline
     num \\ \hline \hline  
     1 \\
     2 \\
@@ -137,19 +136,28 @@ SELECT t1.id , t1.score , count(*) AS rank
 \end{table}
 
 
+
+
+
+\subsection{外部結合の意味}
+自己結合で外部結合するということには、組み合わせにおけるすべての可能性を網羅する、という意味があります。
+言葉を変えると、テーブルのフィールドを座標軸とした多次元の空間を作る、ということでもあります。
+
+
+
 このテーブルを、自己結合で外部結合すると、表\ref{table:miscouter}ように、すべてのレコードの組み合わせを網羅した集合が得られます。
 実際のSQLでは、AS句でテーブル名にエイリアスを設定して、同じ構造とレコードの別のテーブルがあるように見せると説明しました。
 
 たとえば、外部結合した集合のレコードをすべて表示するとき、クエリ\ref{sql:outer}のようなSELECTを書きます。外部結合の結合相手として、結合元の別名を持ってきます。これは、SQLでは、同じ名前のテーブルをそのまま結合することができないためです。
 
-\begin{lstlisting}[caption=自己結合の外部結合の例,label=sql:outer]
+\begin{lstlisting}[caption=自己結合の外部結合,label=sql:outer]
 SELECT * FROM misc , misc AS misc_a;
-\end{verbatim}
+\end{lstlisting}
 
-クエリ\ref{sql:outer}の実行結果は、以下のようになります。フィールド名は、エイリアスをつけていないので同一のものが現れます。
+クエリ\ref{sql:outer}の実行結果は、表\ref{table:miscouter}になります。フィールド名は、エイリアスをつけていないので同一のものが現れます。
 
 \begin{table}[htbp]
-  \begin{tabular}{|r}r|} \hline
+  \begin{tabular}{|r|r|} \hline
     num & num \\ \hline \hline  
     1 & 1 \\
     2 & 1 \\
@@ -165,27 +173,6 @@ SELECT * FROM misc , misc AS misc_a;
   \label{table:miscouter}
 \end{table}
 
-
-
-\begin{verbatim}
-+-----+-----+
-| num | num |
-+-----+-----+
-|   1 |   1 |
-|   2 |   1 |
-|   3 |   1 |
-|   1 |   2 |
-|   2 |   2 |
-|   3 |   2 |
-|   1 |   3 |
-|   2 |   3 |
-|   3 |   3 |
-+-----+-----+
-\end{verbatim}
-
-\subsection{外部結合の意味}
-自己結合で外部結合するということには、組み合わせにおけるすべての可能性を網羅する、という意味があります。
-言葉を変えると、テーブルのフィールドを座標軸とした多次元の空間を作る、ということでもあります。
 
 後者は一見違うことのようですが、入力する空間を決める、ということは、とりうる値を網羅するということでもあります。
 
