@@ -250,7 +250,15 @@ SELECT DISTINCT t1.length,t2.length,t3.lengh
 ;
 \end{lstlisting}
 
-クエリ\ref{sql:square}を実行すると、numsに別名を付けてつくったテーブルt1とt2とt3の直積から、三平方の定理を満たすt1.lengthとt2.lengthとt3.lengthの組み合わせをフィールドにもつテーブルが、解として出力されます。
+\begin{figure}[htbp]
+  \includegraphics[width=8cm,pagebox=cropbox]{draw/fig1.pdf}
+  \caption{直角三角形の辺とエイリアスの対応}
+  \label{fig:triangle}
+\end{figure}
+
+クエリ\ref{sl:square}を実行すると、numsに別名を付けてつくったテーブルt1とt2とt3の直積から、三平方の定理を満たすt1.lengthとt2.lengthとt3.lengthの組み合わせをフィールドにもつテーブルが、解として出力されます。
+
+エイリアスと直角三角形の辺の対応関係は、図\ref{fig:triangle}のように、長辺をt1、短辺をｔ2とt3としています。
 
 クエリ\ref{sql:square}を実行した結果は、表\ref{table:square}のように得られます。10以下の整数で三平方の定理が成立する組み合わせのすべてが得られていることがわかります。
 
@@ -273,7 +281,16 @@ SELECT DISTINCT t1.length,t2.length,t3.lengh
 \subsection{4 Queen}
 
 n-Queenという問題があります。これは、縦横nマスの盤面で、チェスのクイーンをn個配置する問題です。このクイーンを配置する条件は、全てのクイーンがお互いを取れないことです。
-チェスのルールでは、クイーンは縦横斜めにドコまでも移動できます。つまり、n個のクイーンが、お互いに縦横斜め全て重ならないように置く問題となります。
+チェスのルールでは、クイーンは縦横斜めにどこまでも移動できます。つまり、n個のクイーンが、お互いに縦横斜め全て重ならないように置く問題となります。
+
+たとえば、二つのクイーンを盤面でお互いが取り合わないように配置すると、図\ref{fig:n-queen}のようになります。
+
+\begin{figure}[htbp]
+  \includegraphics[width=8cm,pagebox=cropbox]{draw/4queen-0.pdf}
+  \caption{n-queen問題}
+  \label{fig:n-queen}
+\end{figure}
+
 
 n-Queenは、nが4より大きいときに解ができます。再帰の利用例として、総当たり探索で解く問を題として紹介されることが多いものです。
 
@@ -291,13 +308,32 @@ INSERT INTO col VALUES
    (1),(2),(3),(4);
 \end{lstlisting}
 
-ある縦の列でQueenをどこに置くかは、colテーブルからどのレコードを選択したかで現します。
+ある縦の列でQueenをどこに置くかは、colテーブルからどのレコードを選択したかで現します。レコードと縦の位置の対応は、図\ref{fig:column}のようになります。
+
+\begin{figure}[htbp]
+  \includegraphics[width=8cm,pagebox=cropbox]{draw/4queen-1.pdf}
+  \caption{盤面の縦の列のモデリング}
+  \label{fig:column}
+\end{figure}
+
 
 4-Queenの盤面は、colテーブル4個の外部結合として現されます。このとき、4-Queenの解は、4の4乗で256のレコードを持つ、直積集合、つまり外部結合で作られたテーブルから、4-Queenの解に合致するものを選択する、という問題にすることができます。
+
+\begin{figure}[htbp]
+  \includegraphics[width=8cm,pagebox=cropbox]{draw/4queen-2.pdf}
+  \caption{外部結合で盤面をモデリングする}
+  \label{fig:board}
+\end{figure}
 
 \subsubsection{問題を解く}
 
 4-Queenを解くめには、ある縦の列のQueenに注目したとき、横や斜めの位置にくるQueenがない、という条件が全ての列に対して成立するレコードを、直積から選択するクエリを書けばよいということになります。
+
+テーブルcolにt1からｔ4の、4つのエイリアスをつけ、縦の列をあらわします。それを外部結合して、盤面をあらわします
+
+WHERE句の条件として、あるテーブルのレコードと同じ値のレコードは、ほかのテーブルでは選択しないようににします。これで、横にならぶQueenがない、という条件を判定します。
+
+次に、あるテーブルのレコードで表される位置を選択したとき、ほかのテーブルで、斜めにあたる位置にQueenを置かない、という条件を入れます。たとえば、一番左の位置に相当するt1の任意のレコードを選択したとき、t2でそのレコードより1大きいレコード、t3でそのレコードより2大きいレコード、ｔ4でそのレコードより3大きいレコードを排除します。
 
 \begin{lstlisting}[caption=4-Queenを解く,label=sql:4queen]
 SELECT t1.pos,t2.pos,t3.pos,t4.pos
@@ -336,8 +372,13 @@ SELECT t1.pos,t2.pos,t3.pos,t4.pos
   \label{table:4queen}
 \end{table}
 
-表\ref{table:4queen}の結果の通りに盤面にクイーンを配置すると、たしかに4-Queen問題がSELECT文で解けたことがわかります。
+表\ref{table:4queen}の結果にしたがって、図\ref{fig:result}のように、盤面にクイーンを配置ぢます。
+そうすると、4-Queen問題がSELECT文で解けたことがわかります。
 
 
 
-
+\begin{figure}[htbp]
+  \includegraphics[width=8cm,pagebox=cropbox]{draw/4queen-3.pdf}
+  \caption{4-Queenの解}
+  \label{fig:result}
+\end{figure}
